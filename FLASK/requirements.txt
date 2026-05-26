@@ -100,7 +100,6 @@ nest-asyncio==1.6.0
 networkx==3.5
 notebook==7.5.3
 notebook_shim==0.2.4
-numba==0.61.2
 numpy==2.2.6
 openai-whisper==20250625
 opt_einsum==3.4.0
@@ -129,8 +128,7 @@ Pygments==2.19.2
 pyinstaller==6.15.0
 pyinstaller-hooks-contrib==2025.8
 pyjokes==0.8.3
-PyOpenGL==3.1.10
-PyOpenGL-accelerate==3.1.10
+
 pyparsing==3.3.1
 pyperclip==1.9.0
 pypiwin32==223
