@@ -88,7 +88,18 @@ function clearCanvas() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    predictionText.innerText = "Prediction: -";
+    // reset prediction text
+    document.getElementById("mainPrediction").innerText = "-";
+
+    // reset probability bars
+    for (let i = 0; i < 10; i++) {
+
+        document.getElementById(`fill${i}`).style.width = "0%";
+        document.getElementById(`text${i}`).innerText = "0%";
+    }
+
+    // optional: stop pending prediction calls
+    clearTimeout(timeout);
 }
 
 // =========================
