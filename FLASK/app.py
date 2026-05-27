@@ -1,92 +1,126 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+
 import numpy as np
-import pickle
+import torch
+
 from PIL import Image
+
+from main import NeuralNetwork
 
 app = Flask(__name__)
 CORS(app)
 
-# Load model
-with open("model.pkl", "rb") as f:
-    model = pickle.load(f)
+# ======================
+# LOAD MODEL
+# ======================
 
-w1 = model["first_layer_weights"]
-w2 = model["second_layer_weights"]
-w3 = model["third_layer_weights"]
+model = NeuralNetwork()
 
-b1 = model["first_layer_bias"]
-b2 = model["second_layer_bias"]
-b3 = model["third_layer_bias"]
+model.load_state_dict(
+    torch.load("mnist_model.pth")
+)
 
-# ---------- ACTIVATIONS ----------
-def relu(x):
-    return np.maximum(0, x)
+model.eval()
 
-def softmax(x): 
-    exp_x = np.exp(x - np.max(x, axis=1, keepdims=True)) 
-    return exp_x / np.sum(exp_x, axis=1, keepdims=True)
+# ======================
+# ROUTE
+# ======================
 
-# ---------- FORWARD ----------
-def nural_predict(img_array):
-    x = img_array.flatten().reshape(1, 784)
-
-    z1 = np.dot(x, w1) + b1
-    a1 = relu(z1)
-
-    z2 = np.dot(a1, w2) + b2
-    a2 = relu(z2)
-
-    z3 = np.dot(a2, w3) + b3
-    output = softmax(z3)
-
-    return output
-
-# ---------- ROUTE ----------
 @app.route("/predict", methods=["POST"])
 def predict():
-    data = request.get_json()
-    pixels = np.array(data["pixels"], dtype=np.uint8)
 
+    data = request.get_json()
+
+    pixels = np.array(
+        data["pixels"],
+        dtype=np.uint8
+    )
+
+    # RGBA canvas
     arr = pixels.reshape(400, 400, 4)
+
+    # remove alpha channel
     arr = arr[:, :, :3]
 
+    # grayscale
     img = Image.fromarray(arr).convert("L")
 
     img_array = np.array(img)
 
+    # crop digit
     coords = np.argwhere(img_array > 30)
 
     if coords.size > 0:
+
         y_min, x_min = coords.min(axis=0)
         y_max, x_max = coords.max(axis=0)
 
-        img_array = img_array[y_min:y_max+1, x_min:x_max+1]
+        img_array = img_array[
+            y_min:y_max+1,
+            x_min:x_max+1
+        ]
 
+    # padding
     padded = np.pad(
         img_array,
         ((20, 20), (20, 20)),
-        mode='constant'
+        mode="constant"
     )
 
+    # resize
     img = Image.fromarray(padded).resize((28, 28))
 
     img_array = np.array(img)
 
+    # normalize
     img_array = img_array / 255.0
-    img_array = (img_array > 0.15).astype(np.float32)
 
-    prediction = nural_predict(img_array)[0]
+    # shape:
+    # (1, 1, 28, 28)
+
+    image_tensor = torch.tensor(
+        img_array,
+        dtype=torch.float32
+    ).unsqueeze(0).unsqueeze(0)
+
+    # ======================
+    # PREDICTION
+    # ======================
+
+    with torch.no_grad():
+
+        output = model(image_tensor)
+
+        probabilities = torch.softmax(output, dim=1)
+
+        prediction = torch.argmax(
+            probabilities,
+            dim=1
+        )
 
     return jsonify({
-        "digit": int(np.argmax(prediction)),
-        "probabilities": prediction.tolist()
+
+        "digit": int(prediction.item()),
+
+        "probabilities":
+        probabilities.squeeze().tolist()
+
     })
 
-# ---------- HOME ----------
+# ======================
+# HOME
+# ======================
+
 @app.route("/")
 def home():
+
     return render_template("index.html")
 
+# ======================
+# RUN
+# ======================
+
 if __name__ == "__main__":
+
     app.run(debug=True)
