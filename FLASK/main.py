@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 
-device=torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+device=torch.device("cpu")
 
 class conv(nn.Module):
     def __init__(self):
