@@ -1,6 +1,8 @@
 const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d", {
+    willReadFrequently: true
+});
 const predictionText = document.getElementById("prediction");
 const clearBtn = document.getElementById("clearBtn");
 
