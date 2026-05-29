@@ -6,7 +6,7 @@ import torch
 
 from PIL import Image
 
-from main import NeuralNetwork
+from main import conv
 
 app = Flask(__name__)
 CORS(app)
@@ -15,7 +15,7 @@ CORS(app)
 # LOAD MODEL
 # ======================
 
-model = NeuralNetwork()
+model = conv()
 
 model.load_state_dict(
     torch.load("mnist_model.pth")
