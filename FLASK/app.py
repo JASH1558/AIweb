@@ -16,9 +16,9 @@ CORS(app)
 # ======================
 
 model = conv()
-
-model.load_state_dict(
-    torch.load("mnist_model.pth")
+torch.load(
+    "mnist_model.pth",
+    map_location=torch.device("cpu")
 )
 
 model.eval()
