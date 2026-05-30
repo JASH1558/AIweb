@@ -6,8 +6,8 @@ const predictionText = document.getElementById("prediction");
 const clearBtn = document.getElementById("clearBtn");
 
 // Canvas resolution
-canvas.width = 400;
-canvas.height = 400;
+canvas.width = 28;
+canvas.height = 28;
 
 // Drawing state
 let drawing = false;
@@ -19,16 +19,25 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 // Brush settings
 ctx.strokeStyle = "white";
-ctx.lineWidth = 20;
+ctx.lineWidth = 4;
 ctx.lineCap = "round";
 ctx.lineJoin = "round";
 ctx.lineJoin = "round";
 ctx.lineCap = "round";
-ctx.lineWidth = 40;
+ctx.imageSmoothingEnabled = false;
 
 // =========================
 // START DRAWING
 // =========================
+function getMousePos(e) {
+
+    const rect = canvas.getBoundingClientRect();
+
+    return {
+        x: (e.clientX - rect.left) * (canvas.width / rect.width),
+        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+    };
+}
 
 canvas.addEventListener("mousedown", startDrawing);
 
@@ -36,15 +45,12 @@ function startDrawing(e) {
 
     drawing = true;
 
-    const rect = canvas.getBoundingClientRect();
+    const pos = getMousePos(e);
 
     ctx.beginPath();
-
-    ctx.moveTo(
-        e.clientX - rect.left,
-        e.clientY - rect.top
-    );
+    ctx.moveTo(pos.x, pos.y);
 }
+
 
 // =========================
 // STOP DRAWING
@@ -67,12 +73,9 @@ function draw(e) {
 
     if (!drawing) return;
 
-    const rect = canvas.getBoundingClientRect();
+    const pos = getMousePos(e);
 
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    ctx.lineTo(x, y);
+    ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
 
     triggerPrediction();
