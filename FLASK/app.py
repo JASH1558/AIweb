@@ -16,13 +16,15 @@ CORS(app)
 # ======================
 
 model = conv()
-torch.load(
-    "mnist_model.pth",
-    map_location=torch.device("cpu")
+model.load_state_dict(
+    torch.load(
+        "mnist_model.pth",
+        map_location=torch.device("cpu")
+    )
 )
-
+print(next(model.parameters())[0][:5])
 model.eval()
-
+print(next(model.parameters())[0][:5])
 # ======================
 # ROUTE
 # ======================
@@ -37,34 +39,11 @@ def predict():
             data["pixels"],
             dtype=np.uint8
         )
-
-        arr = pixels.reshape(400, 400, 4)
+        arr = pixels.reshape(28, 28, 4)
 
         arr = arr[:, :, :3]
 
         img = Image.fromarray(arr).convert("L")
-
-        img_array = np.array(img)
-
-        coords = np.argwhere(img_array > 30)
-
-        if coords.size > 0:
-
-            y_min, x_min = coords.min(axis=0)
-            y_max, x_max = coords.max(axis=0)
-
-            img_array = img_array[
-                y_min:y_max+1,
-                x_min:x_max+1
-            ]
-
-        padded = np.pad(
-            img_array,
-            ((20, 20), (20, 20)),
-            mode="constant"
-        )
-
-        img = Image.fromarray(padded).resize((28, 28))
 
         img_array = np.array(img)
 
@@ -118,4 +97,4 @@ def home():
 
 if __name__ == "__main__":
 
-    app.run()
+    app.run(debug=True)

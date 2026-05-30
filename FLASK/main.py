@@ -1,6 +1,5 @@
 import torch 
 import torch.nn as nn
-import torch.optim as optim
 
 
 device=torch.device("cpu")
@@ -29,10 +28,5 @@ class conv(nn.Module):
         x=self.relu(x)
         x=self.fc3(x)
         return x
+    
 
-
-
-
-model=conv().to(device)
-
-torch.save(model.state_dict(),"mnist_model.pth")
