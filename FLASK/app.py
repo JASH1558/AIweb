@@ -31,14 +31,16 @@ print(next(model.parameters())[0][:5])
 @app.route("/predict", methods=["POST"])
 def predict():
 
+    print("PREDICT CALLED", flush=True)
+
     try:
 
         data = request.get_json()
+        print("JSON received", flush=True)
 
-        pixels = np.array(
-            data["pixels"],
-            dtype=np.uint8
-        )
+        pixels = np.array(data["pixels"], dtype=np.uint8)
+        print("Pixels shape:", pixels.shape, flush=True)
+
         arr = pixels.reshape(28, 28, 4)
 
         arr = arr[:, :, :3]
@@ -54,9 +56,15 @@ def predict():
             dtype=torch.float32
         ).unsqueeze(0).unsqueeze(0)
 
+        print("Tensor shape:", image_tensor.shape, flush=True)
+
         with torch.no_grad():
 
+            print("Running model...", flush=True)
+
             output = model(image_tensor)
+
+            print("Model finished", flush=True)
 
             probabilities = torch.softmax(output, dim=1)
 
@@ -66,22 +74,17 @@ def predict():
             )
 
         return jsonify({
-
             "digit": int(prediction.item()),
-
-            "probabilities":
-            probabilities.squeeze().tolist()
-
+            "probabilities": probabilities.squeeze().tolist()
         })
 
     except Exception as e:
 
-        print("ERROR:", e)
+        print("ERROR:", repr(e), flush=True)
 
         return jsonify({
             "error": str(e)
         }), 500
-
 # ======================
 # HOME
 # ======================
