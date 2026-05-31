@@ -3,5 +3,5 @@ flask-cors
 numpy
 Pillow
 gunicorn
-torch==2.8.0
-torchvision==0.23.0
+torch
+torchvision
