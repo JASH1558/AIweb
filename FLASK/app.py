@@ -12,6 +12,10 @@ torch.set_num_threads(1)
 torch.set_num_interop_threads(1)
 torch.backends.mkldnn.enabled = False
 
+import sys
+print("Python version:", sys.version, flush=True)
+print("Torch version:", torch.__version__, flush=True)
+
 app = Flask(__name__)
 CORS(app)
 
