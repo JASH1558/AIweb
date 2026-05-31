@@ -8,6 +8,10 @@ from PIL import Image
 
 from main import conv
 
+torch.set_num_threads(1)
+torch.set_num_interop_threads(1)
+torch.backends.mkldnn.enabled = False
+
 app = Flask(__name__)
 CORS(app)
 
